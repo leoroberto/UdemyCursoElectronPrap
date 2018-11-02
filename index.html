@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+  <html>
+    <head>
+      <meta charset="UTF-8">
+      <title>App</title>
+    </head>
+    <body>
+      <h1>Primeira Aplicação</h1>
+      <form>
+          <div>
+              <input type="file" accept="image/*" />
+          </div>
+          <button type="submit">Mostrar dimensões</button>
+      </form>
+
+      <h1 id="result"></h1>
+
+      <script>
+        //Em se tratando do electron, é popssível trabalhar com os módulos do node juntamente com o navegador
+        const electron = require('electron');
+        /*Extraindo o ipcRenderer via desestruturação, este item faz parte do IPC (Comunicação
+        entre processos )ele será responsável por criar e enviar/receber o para o arquivo index.js
+        */
+        const { ipcRenderer } = electron;
+        document.querySelector('form').addEventListener('submit', (event) => {
+          //Inibir o comportamento padrão de envio do formulário
+          event.preventDefault();
+          //Extrai via desestruturação do objeto o caminho do arquivo
+          const { path } = document.querySelector('input').files[0];
+          //Criando o evento e enviando o argumento via IPC
+          ipcRenderer.send('obterDimensoesDaImagem', path);
+        });
+
+        ipcRenderer.on('dimensoesDaImagem', (event, dimensions) => {
+          document.querySelector('#result').innerHTML = 
+            `Largura = ${dimensions.width} Altura = ${dimensions.height}`
+        });
+      </script>
+    </body>
+  </html>
